@@ -8,7 +8,7 @@ CORS(app)
 # Redireciona para a rota do front-end
 @app.route("/")
 def home():
-    return redirect("http://localhost:3000/chatbot")  # ou outra rota Next.js que desejar
+    return redirect("https://trip-red.vercel.app/chatbot")  # ou outra rota Next.js que desejar
 
 @app.route("/chat", methods=["POST"])
 def chat():
