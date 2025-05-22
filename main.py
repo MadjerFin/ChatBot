@@ -11,10 +11,10 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    prompt = request.json.get("msg")
-    if not prompt:
+    data = request.get_json()
+    if not data or "msg" not in data:
         return jsonify({"erro": "Mensagem não fornecida"}), 400
-    resposta = bot(prompt)
+    resposta = bot(data["msg"])
     return jsonify({"resposta": resposta})
 
 @app.route("/limpar_historico", methods=["POST"])
@@ -22,5 +22,4 @@ def limpar_historico_route():
     limpar_historico()
     return jsonify({"status": "Histórico limpo"})
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# Não inclua app.run aqui para ambientes como Render (usa gunicorn)
