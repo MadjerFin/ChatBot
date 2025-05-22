@@ -4,21 +4,16 @@ import dotenv
 from prompts import prompt_de_sistema
 
 dotenv.load_dotenv()
-print("Chave carregada:", os.environ.get("ANTHROPIC_API_KEY"))
-client = anthropic.Anthropic(
-    api_key=os.environ.get("ANTHROPIC_API_KEY")
-)
-modelo = "claude-3-7-sonnet-20250219"
 
-# Histórico começa vazio
+if not os.environ.get("ANTHROPIC_API_KEY"):
+    raise ValueError("ANTHROPIC_API_KEY não encontrada no .env")
+
+client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+
+modelo = "claude-3-7-sonnet-20250219"
 historico = []
 
 def resumir_historico(historico):
-    """
-    Função opcional para resumir histórico se necessário.
-    Aqui ele apenas retorna uma versão simples,
-    mas você poderia chamar a própria API pra gerar um resumo bonito.
-    """
     textos = []
     for msg in historico:
         if msg["role"] == "user":
@@ -34,13 +29,11 @@ def resumir_historico(historico):
 def bot(prompt_usuario):
     global historico
 
-    # Adiciona a nova pergunta ao histórico
     historico.append({
         "role": "user",
         "content": [{"type": "text", "text": prompt_usuario}]
     })
 
-    # Se o histórico ficar muito grande, resumir as mensagens antigas
     if len(historico) > 6:
         historico = resumir_historico(historico[-6:])
 
@@ -54,7 +47,6 @@ def bot(prompt_usuario):
 
     resposta = message.content[0].text
 
-    # Adiciona a resposta do bot ao histórico
     historico.append({
         "role": "assistant",
         "content": [{"type": "text", "text": resposta}]
