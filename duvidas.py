@@ -10,7 +10,7 @@ if not os.environ.get("ANTHROPIC_API_KEY"):
 
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-modelo = "claude-sonnet-4-20250514"
+modelo = "claude-3-7-sonnet-20250219"
 historico = []
 
 def resumir_historico(historico):
