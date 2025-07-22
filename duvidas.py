@@ -2,7 +2,7 @@ import anthropic
 import os
 import dotenv
 from prompts import prompt_de_sistema
-from google_routes import consultar_rota_google  # ✅ integração com Google Maps
+from google_routes import consultar_rota_google  # integração com Google Maps
 
 dotenv.load_dotenv()
 
@@ -28,7 +28,7 @@ def resumir_historico(historico):
 def bot(prompt_usuario):
     global historico
 
-    # 🧭 Tenta identificar uma dúvida de rota
+    # 🧭 Tenta responder com a API do Google Maps, se for uma dúvida de trajeto
     if "como chegar" in prompt_usuario.lower() and " de " in prompt_usuario and " para " in prompt_usuario:
         try:
             partes = prompt_usuario.lower().split(" de ")
@@ -40,10 +40,13 @@ def bot(prompt_usuario):
                 resposta_google = consultar_rota_google(origem, destino)
                 if resposta_google:
                     return f"🧭 Rota sugerida com base no Google Maps:\n\n{resposta_google}"
+                else:
+                    return "❌ Não foi possível encontrar uma rota válida entre essas estações. Verifique os nomes e tente novamente."
         except Exception as e:
             print(f"[ERRO ao consultar rota no Google Maps]: {e}")
+            return "⚠️ Ocorreu um erro ao tentar consultar a rota. Tente novamente mais tarde."
 
-    # 🤖 Fallback para Anthropic se não for rota ou falhar
+    # 🤖 Fallback para Anthropic se não for uma dúvida de trajeto
     historico.append({
         "role": "user",
         "content": [{"type": "text", "text": prompt_usuario}]
@@ -52,7 +55,7 @@ def bot(prompt_usuario):
     if len(historico) > 6:
         historico = resumir_historico(historico[-6:])
 
-    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))  # criação segura por request
+    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
     try:
         message = client.messages.create(
