@@ -2,6 +2,7 @@ import anthropic
 import os
 import dotenv
 from prompts import prompt_de_sistema
+from google_routes import consultar_rota_google  # ✅ Adiciona a integração com Google
 
 dotenv.load_dotenv()
 
@@ -29,6 +30,22 @@ def resumir_historico(historico):
 def bot(prompt_usuario):
     global historico
 
+    # ✅ Primeira tentativa: usar Google Maps para rotas
+    if "como chegar" in prompt_usuario.lower() and " de " in prompt_usuario and " para " in prompt_usuario:
+        try:
+            partes = prompt_usuario.lower().split(" de ")
+            if len(partes) == 2 and " para " in partes[1]:
+                origem, destino = partes[1].split(" para ")
+                origem = origem.strip()
+                destino = destino.strip()
+
+                resposta_google = consultar_rota_google(origem, destino)
+                if resposta_google:
+                    return f"🧭 Rota sugerida com base no Google Maps:\n\n{resposta_google}"
+        except Exception as e:
+            print(f"[Erro ao usar Google Maps]: {e}")
+
+    # 🧠 Fallback: consulta à Anthropic
     historico.append({
         "role": "user",
         "content": [{"type": "text", "text": prompt_usuario}]
