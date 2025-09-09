@@ -19,6 +19,11 @@ def whatsapp_webhook():
     incoming_msg = request.values.get("Body", "").strip()
     numero_usuario = request.values.get("From", "")
 
+    # Limpa o número para formato padrão
+    numero_usuario = numero_usuario.replace(" ", "").replace("whatsapp:", "")
+    if not numero_usuario.startswith("+"):
+        numero_usuario = f"+{numero_usuario}"
+
     resp = MessagingResponse()
     msg = resp.message()
 
@@ -47,5 +52,3 @@ def chat():
         print("Erro no bot via /chat:", e)
         return jsonify({"erro": "Erro interno"}), 500
     return jsonify({"resposta": resposta})
-
-
