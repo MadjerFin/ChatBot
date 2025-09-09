@@ -1,9 +1,13 @@
 from flask import Flask, request, redirect, jsonify
+from flask_cors import CORS
 from duvidas import bot  # sua função de IA
 from twilio.twiml.messaging_response import MessagingResponse
 import os
 
 app = Flask(__name__)
+
+# 🔹 Ativa CORS para todas as rotas ou apenas para o frontend do Vercel
+CORS(app, origins=["https://trip-red.vercel.app"])
 
 # 🔹 Página inicial do site
 @app.route("/", methods=["GET"])
@@ -40,7 +44,7 @@ def whatsapp_webhook():
     print(f"Usuário {numero_usuario} disse: {incoming_msg}")
     return str(resp), 200, {"Content-Type": "application/xml"}
 
-# 🔹 Rota para chat via frontend (opcional)
+# 🔹 Rota para chat via frontend
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -52,3 +56,4 @@ def chat():
         print("Erro no bot via /chat:", e)
         return jsonify({"erro": "Erro interno"}), 500
     return jsonify({"resposta": resposta})
+
