@@ -1,43 +1,54 @@
 from flask import Flask, request, redirect, jsonify
-from flask_cors import CORS
 from duvidas import bot  # sua função de IA
 from twilio.twiml.messaging_response import MessagingResponse
+import os
 
 app = Flask(__name__)
-CORS(app)
 
-@app.route("/")
+# 🔹 Página inicial do site
+@app.route("/", methods=["GET"])
 def home():
     return redirect("https://trip-red.vercel.app/chatbot")
 
-# 🔹 Webhook que o Twilio chama quando chega msg no WhatsApp
+# 🔹 Webhook do Twilio para WhatsApp
 @app.route("/webhook", methods=["POST"])
 def whatsapp_webhook():
-    # Pega o texto da msg recebida
+    print("Webhook chamado")  # confirma que o Twilio chegou aqui
+    print("Request values:", request.values)  # mostra todos os dados recebidos
+
     incoming_msg = request.values.get("Body", "").strip()
-    # Pega o número do usuário que enviou
     numero_usuario = request.values.get("From", "")
 
-    # Cria resposta no formato Twilio
     resp = MessagingResponse()
     msg = resp.message()
 
     if not incoming_msg:
         msg.body("Não entendi sua mensagem 🚇")
     else:
-        resposta = bot(incoming_msg)  # usa sua IA Trip
-        msg.body(resposta)
+        try:
+            resposta = bot(incoming_msg)  # chama a IA
+            msg.body(resposta)
+        except Exception as e:
+            print("Erro no bot:", e)
+            msg.body("Ops, erro interno 🤖")
 
-    # Apenas para log (vai aparecer no terminal)
     print(f"Usuário {numero_usuario} disse: {incoming_msg}")
+    return str(resp), 200, {"Content-Type": "application/xml"}
 
-    return str(resp)
-
-# 🔹 Mantém a rota para o site (Vercel)
+# 🔹 Rota para chat via frontend (opcional)
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
     if not data or "msg" not in data:
         return jsonify({"erro": "Mensagem não fornecida"}), 400
-    resposta = bot(data["msg"])
+    try:
+        resposta = bot(data["msg"])
+    except Exception as e:
+        print("Erro no bot via /chat:", e)
+        return jsonify({"erro": "Erro interno"}), 500
     return jsonify({"resposta": resposta})
+
+# 🔹 Start do Flask no Render
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
