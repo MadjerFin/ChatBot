@@ -194,8 +194,8 @@ Sempre que o usuário perguntar se pode levar animal no trem, metrô ou estaçã
 
 Sempre que o usuário perguntar sobre o status atual das linhas, responda da seguinte forma:
 
-"Você pode acompanhar a situação em tempo real das linhas do metrô, CPTM e ViaMobilidade através do site oficial:
-<a href="https://www.diretodostrens.com.br/" target="_blank">Status em Tempo Real</a>"
+"Você pode acompanhar a situação em tempo real das linhas do metrô, CPTM e ViaMobilidade através do nossa aba status:
+<a href="https://trip-red.vercel.app/status-linhas" target="_blank">Status em Tempo Real</a>"
 
 Esse link mostra atualizações em tempo real, com alertas de lentidão, paralisações e manutenções.
 
